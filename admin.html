@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>VoteBot Admin</title>
+
+        <link rel="shortcut icon" href="votebot.png">
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="votebot.css" type="text/css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+        <script language="javascript" type="text/javascript">
+            var voting = false;
+        </script>
+
+        <script language="javascript" type="text/javascript" src="votebot.js"></script>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="col-12 pt-3 text-center">
+                <div class="col-5 col-lg-1 ml-auto mr-auto mt-5">
+                    <img class="img-fluid" src="votebot.png" alt="VoteBot" />
+                </div>
+                <div id="offline" class="mt-2">
+                    <h1 class="text-center">Welcome to VoteBot</h1>
+                    <h4 class="text-center mt-4 mb-4"><small>VoteBotServer is not online</small></h4>
+                    <div class="spinner-grow text-dark"></div>
+                    <div class="spinner-grow text-dark"></div>
+                    <div class="spinner-grow text-dark"></div>
+                </div>
+                <div id="online" class="mt-2" style="display:none">
+                    <div id="verify-identity">
+                        <h1 class="text-center">Welcome to VoteBot</h1>
+                        <h4 class="text-center mt-4 mb-4"><small>Enter your Admin Access Code below to get started</small></h4>
+                        <div id="verify-identity-fields" class="col-12 ml-auto mr-auto col-lg-3">
+                            <input id="access-code" type="text" class="form-control text-center" placeholder="Enter Access Code">
+                            <button class="btn btn-primary mt-3" onclick="verify_identity()">Continue</button>
+                            <p class="text-danger mt-3" id="verify-identity-error-text"></p>
+                        </div>
+                        <div id="verify-identity-loading" style="display:none">
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                        </div>
+                    </div>
+                    <div id="home" style="display:none">
+                        <h1 class="text-center admin-as"></h1>
+                        <h4 class="text-center mt-4 mb-4 cur-question"><small></small></h4>
+                        <button onclick="clear_topic()" id="clear-topic-button" class="btn btn-outline-danger mt-1">Clear Topic</button>
+                        <button class="btn btn-outline-primary mt-1" onclick="show_change_topic()">Change Current Topic</button>
+                        <button class="btn btn-outline-success mt-1" onclick="show_reset_topic()">Reset a Topic</button>
+                        <button class="btn btn-outline-warning mt-1" onclick="show_stats_topic()">Tabulate Results</button>
+                        <h4 class="text-center mt-4 mb-4" id="voters-online"></h4>
+                    </div>
+                    <div id="change-topic" style="display:none">
+                        <h1 class="text-center">Changing Current Topic</h1>
+                        <h4 class="text-center mt-4 mb-4"><small>Click on a topic below to activate it</small></h4>
+                        <div id="change-topic-options">
+
+                        </div>
+                        <button class="btn btn-primary mt-4" onclick="back_to_home()">Go Back</button>
+                    </div>
+                    <div id="reset-topic" style="display:none">
+                        <h1 class="text-center">Reset a Topic</h1>
+                        <div id="reset-topic-options">
+                            <h4 class="text-center mt-4 mb-4"><small>Click on a topic below to reset it</small></h4>
+                        </div>
+                        <div id="reset-topic-loading" class="mt-4" style="display:none">
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                        </div>
+                        <div id="reset-topic-success" style="display:none">
+                            <h4 class="text-center text-success mt-4 mb-4"><small>Topic reset successfully</small></h4>
+                        </div>
+                        <div id="reset-topic-failure" style="display:none">
+                            <h4 class="text-center text-danger mt-4 mb-4"><small>You cannot reset the active topic</small></h4>
+                        </div>
+                        <button class="btn btn-primary mt-4" id="reset-home-button" onclick="back_to_home()">Go Back</button>
+                    </div>
+                    <div id="stats-topic" style="display:none">
+                        <h1 class="text-center">Live Results</h1>
+                        <h4 class="text-center mt-4 mb-4"><small>Click on a topic below to tabulate results</small></h4>
+                        <div id="stats-topic-options">
+
+                        </div>
+                        <button class="btn btn-primary mt-4" onclick="back_to_home()">Go Back</button>
+                    </div>
+                    <div id="stats-view" style="display:none">
+                        <h1 class="text-center">Live Results</h1>
+                        <h4 class="text-center mt-4 mb-4 stats-view-question"><small></small></h4>
+                        <h3 class="text-secondary text-center"><span class="text-success" id="in-favour-text"></span>&nbsp;|&nbsp;<span class="text-danger" id="opposed-text"></span>&nbsp;|&nbsp;<span class="text-info" id="abstain-text"></span>&nbsp;|&nbsp;<span class="text-dark" id="did-not-vote-text"></span></h3>
+                        <h3 class="text-secondary text-center mt-3"><small><span class="text-dark" id="total-voters-text"></span>&nbsp;|&nbsp;<span class="text-dark" id="participation-text"></span></small></h3>
+                        <button class="btn btn-primary mt-4" onclick="back_to_stats()">Go Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

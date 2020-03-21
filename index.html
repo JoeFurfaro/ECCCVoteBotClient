@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>VoteBot</title>
+
+        <link rel="shortcut icon" href="votebot.png">
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="votebot.css" type="text/css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+        <script language="javascript" type="text/javascript">
+            var voting = true;
+        </script>
+
+        <script language="javascript" type="text/javascript" src="votebot.js"></script>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="col-12 pt-3 text-center">
+                <div class="col-5 col-lg-1 ml-auto mr-auto mt-5">
+                    <img class="img-fluid" src="votebot.png" alt="VoteBot" />
+                </div>
+                <div id="offline" class="mt-2">
+                    <h1 class="text-center">Welcome to VoteBot</h1>
+                    <h4 class="text-center mb-4"><small>Waiting for voting session to begin</small></h4>
+                    <div class="spinner-grow text-dark"></div>
+                    <div class="spinner-grow text-dark"></div>
+                    <div class="spinner-grow text-dark"></div>
+                </div>
+                <div id="online" class="mt-2" style="display:none">
+                    <div id="verify-identity">
+                        <h1 class="text-center">Welcome to VoteBot</h1>
+                        <h4 class="text-center mt-4 mb-4"><small>Enter your Voter Access Code below to get started</small></h4>
+                        <div id="verify-identity-fields" class="col-12 ml-auto mr-auto col-lg-3">
+                            <input id="access-code" type="text" class="form-control text-center" placeholder="Enter Access Code">
+                            <button class="btn btn-primary mt-3" onclick="verify_identity()">Continue</button>
+                            <p class="text-danger mt-3" id="verify-identity-error-text"></p>
+                        </div>
+                        <div id="verify-identity-loading" style="display:none">
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                        </div>
+                    </div>
+                    <div id="no-question" style="display:none">
+                        <h1 class="text-center voting-as"></h1>
+                        <h4 class="text-center mt-4 mb-4"><small>Waiting for a topic to vote on</small></h4>
+                        <div class="spinner-grow text-dark"></div>
+                        <div class="spinner-grow text-dark"></div>
+                        <div class="spinner-grow text-dark"></div>
+                    </div>
+                    <div id="question" style="display:none">
+                        <h1 class="text-center voting-as"></h1>
+                        <h4 id="question-text" class="text-center mt-4"><small></small></h4>
+                        <div id="question-options">
+                            <h4 class="text-center mb-4 text-secondary"><small>Click on an answer to vote (you may only vote once)</small></h4>
+                            <button class="btn btn-outline-success mt-1" onclick="vote('IN_FAVOUR')">In Favour</button>
+                            <button class="btn btn-outline-danger mt-1" onclick="vote('OPPOSED')">Opposed</button>
+                            <button class="btn btn-outline-info mt-1" onclick="vote('ABSTAIN')">Abstain</button>
+                        </div>
+                        <div id="vote-receieved" style="display:none">
+                            <h4 class="text-center text-secondary"><small>Thank you! Your vote has been receieved.</small></h4>
+                            <h4 class="text-center mb-4 text-secondary"><small>Waiting for next topic to vote on</small></h4>
+                            <div class="mt-4">
+                                <div class="spinner-grow text-dark"></div>
+                                <div class="spinner-grow text-dark"></div>
+                                <div class="spinner-grow text-dark"></div>
+                            </div>
+                        </div>
+                        <div id="vote-loading" class="mt-4" style="display:none">
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                            <div class="spinner-grow text-dark"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

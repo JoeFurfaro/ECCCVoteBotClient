@@ -37,6 +37,7 @@ function connect() {
         $(document).ready(function() {
             let response = e.data;
             let args = response.split("|||");
+            console.log(args);
             if(args[0] == "700") {
                 $("#verify-identity-error-text").html("Invalid Voter Access Code");
                 $("#verify-identity-loading").hide();
@@ -57,15 +58,27 @@ function connect() {
                         $("#no-question").show();
                         qid = null;
                     } else {
-                        qid = args[1];
-                        let question = args[2];
-                        let already_voted = args[3];
-                        $("#question-text small").html(question);
+                        qargs = args[1].split("%%");
+                        qid = qargs[0];
+                        let already_voted = args[2];
+                        $("#question-text small").html(qargs[1]);
                         $("#vote-loading").hide();
                         if(already_voted == "True") {
                             $("#question-options").hide();
                             $("#vote-receieved").show();
                         } else {
+                            // Add custom options right here
+                            $("#button-options").html("");
+                            let new_html = "";
+                            let qoptions = [];
+                            if(qargs.length > 2)
+                                qoptions = qargs.slice(2, qargs.length);
+                            console.log("DAMN:" + qoptions);
+                            for(var i = 0; i < qoptions.length; i++) {
+                                option = qoptions[i];
+                                new_html += '<button class="btn btn-outline-info mt-1 ml-1 mr-1" onclick="vote(\'' + option + '\')">' + option + '</button>';
+                            }
+                            $("#button-options").html(new_html);
                             $("#vote-receieved").hide();
                             $("#question-options").show();
                         }
@@ -80,8 +93,9 @@ function connect() {
                         qid = null;
                     } else {
                         $("#clear-topic-button").show();
-                        qid = args[1];
-                        let question = args[2];
+                        let qargs = args[1].split("%%");
+                        qid = qargs[0];
+                        let question = qargs[1];
                         $(".cur-question small").html("Current topic: " + question);
                     }
                 }
@@ -98,22 +112,24 @@ function connect() {
                 $("#verify-identity-loading").hide();
                 $("#verify-identity-fields").show();
             } else if(args[0] == "REG") {
+                let qargs = args[1].split("%%");
+                let sargs = args[2].split("%%");
+                let qoptions = [];
+                if(qargs.length > 2)
+                    qoptions = qargs.slice(2, qargs.length);
+
                 questions.push({
-                    id: args[1],
-                    text: args[2],
-                    in_favour: args[3],
-                    opposed: args[4],
-                    abstain: args[5],
-                    did_not_vote: args[6],
-                    total_voters: args[7],
-                    vote_perc: args[8]
+                    id: qargs[0],
+                    text: qargs[1],
+                    options: qoptions,
+                    stats: sargs
                 });
                 console.log(questions);
-                let new_change_html = "<div class='row mt-2'><button onclick='change_topic(" + args[1] + ")' class='btn btn-outline-primary ml-auto mr-auto'>" + args[2] + "</button></div>";
+                let new_change_html = "<div class='row mt-2'><button onclick='change_topic(" + qargs[0] + ")' class='btn btn-outline-primary ml-auto mr-auto'>" + qargs[1] + "</button></div>";
                 $("#change-topic-options").html($("#change-topic-options").html() + new_change_html);
-                let new_reset_html = "<div class='row mt-2'><button onclick='reset_topic(" + args[1] + ")' class='btn btn-outline-success ml-auto mr-auto'>" + args[2] + "</button></div>";
+                let new_reset_html = "<div class='row mt-2'><button onclick='reset_topic(" + qargs[0] + ")' class='btn btn-outline-success ml-auto mr-auto'>" + qargs[1] + "</button></div>";
                 $("#reset-topic-options").html($("#reset-topic-options").html() + new_reset_html);
-                let new_stats_html = "<div class='row mt-2'><button onclick='stats_topic(" + args[1] + ")' class='btn btn-outline-warning ml-auto mr-auto'>" + args[2] + "</button></div>";
+                let new_stats_html = "<div class='row mt-2'><button onclick='stats_topic(" + qargs[0] + ")' class='btn btn-outline-warning ml-auto mr-auto'>" + qargs[1] + "</button></div>";
                 $("#stats-topic-options").html($("#stats-topic-options").html() + new_stats_html);
             } else if(args[0] == "804") {
                 $("#reset-home-button").show();
@@ -124,20 +140,23 @@ function connect() {
                 $("#reset-topic-loading").hide();
                 $("#reset-topic-failure").show();
             } else if(args[0] == "STATS") {
-                let question = get_question(args[1]);
-                question.in_favour = args[2];
-                question.opposed = args[3];
-                question.abstain = args[4];
-                question.did_not_vote = args[5];
-                question.total_voters = args[6];
-                question.vote_perc = args[7];
+                let qargs = args[1].split("%%");
+                let sargs = args[2].split("%%");
+
+                let question = get_question(qargs[0]);
+                question.stats = sargs;
                 if(question.id == sqid) {
-                    $("#in-favour-text").html(question.in_favour);
-                    $("#opposed-text").html(question.opposed);
-                    $("#abstain-text").html(question.abstain);
-                    $("#did-not-vote-text").html(question.did_not_vote);
-                    $("#total-voters-text").html(question.total_voters + " vote(s)");
-                    $("#participation-text").html(question.vote_perc + "% participation");
+                    if(question.stats.length > 3) {
+                        let custom_stats = question.stats.slice(0, question.stats.length-3);
+                        for(var i = 0; i < custom_stats.length; i++) {
+                            let option = question.options[i];
+                            let stat = custom_stats[i];
+                            $("#stats-" + i).html(stat);
+                        }
+                    }
+                    $("#did-not-vote-text").html(question.stats[question.stats.length-3] + " did not vote");
+                    $("#total-voters-text").html(question.stats[question.stats.length-2] + " vote(s)");
+                    $("#participation-text").html(question.stats[question.stats.length-1] + "% participation");
                 }
             } else if(args[0] == "ONLINE") {
                 $("#voters-online").html(args[1] + " voter(s) online");
@@ -186,12 +205,20 @@ function stats_topic(id) {
         sqid = id;
         let question = get_question(id);
         $(".stats-view-question small").html(question.text);
-        $("#in-favour-text").html(question.in_favour);
-        $("#opposed-text").html(question.opposed);
-        $("#abstain-text").html(question.abstain);
-        $("#did-not-vote-text").html(question.did_not_vote);
-        $("#total-voters-text").html(question.total_voters + " vote(s)");
-        $("#participation-text").html(question.vote_perc + "% participation");
+        $("#response-area").html("");
+        var new_html = "";
+        if(question.stats.length > 3) {
+            let custom_stats = question.stats.slice(0, question.stats.length-3);
+            for(var i = 0; i < custom_stats.length; i++) {
+                let option = question.options[i];
+                let stat = custom_stats[i];
+                new_html += "<p class='text-center text-secondary mb-0'>" + option + ": <span id='stats-" + i + "' class='text-primary'>" + stat + "</span></p>";
+            }
+        }
+        $("#response-area").html(new_html);
+        $("#did-not-vote-text").html(question.stats[question.stats.length-3] + " did not vote");
+        $("#total-voters-text").html(question.stats[question.stats.length-2] + " vote(s)");
+        $("#participation-text").html(question.stats[question.stats.length-1] + "% participation");
         $("#stats-topic").hide();
         $("#stats-view").show();
     });

@@ -11,7 +11,7 @@ function get_question(id) {
 }
 
 function connect() {
-    socket = new WebSocket("ws://192.168.2.95:8765");
+    socket = new WebSocket("wss://eccc.reeve.tech:8765");
 
     socket.onopen = function(e) {
         console.log("Connected to socket!");
@@ -171,6 +171,14 @@ function connect() {
             $("#verify-identity-error-text").html("");
             $("#verify-identity-loading").hide();
             $("#verify-identity-fields").show();
+            if(voting) {
+                $("#button-options").html("");
+            } else {
+                $("#response-area").html("");
+                $("#change-topic-options").html("");
+                $("#reset-topic-options").html("");
+                $("#stats-topic-options").html("");
+            }
         });
         console.log("[SOCKET ERROR] Could not connect to socket. Retrying in 1 second...");
         setTimeout(function() {
